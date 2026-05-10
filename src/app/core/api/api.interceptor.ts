@@ -1,0 +1,16 @@
+import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpEvent } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { API_CONFIG } from '../../config/api.config';
+
+export const apiInterceptor: HttpInterceptorFn = (
+  req: HttpRequest<unknown>,
+  next: HttpHandlerFn,
+): Observable<HttpEvent<unknown>> => {
+  const apiReq = req.clone({
+    setHeaders: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+  });
+  return next(apiReq);
+};
