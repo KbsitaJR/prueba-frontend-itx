@@ -1,3 +1,6 @@
+import { Injectable } from '@angular/core';
+
+@Injectable({ providedIn: 'root' })
 export class CacheService {
   private readonly memoryCache = new Map<string, { data: unknown; timestamp: number; ttl: number }>();
 
