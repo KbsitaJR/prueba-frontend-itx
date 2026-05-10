@@ -1,4 +1,4 @@
-import { Injectable, signal, computed, effect } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { CartItem, AddToCartRequest, AddToCartResponse } from '../models/product.model';
 import { ApiService } from '../core/api/api.service';
 import { API_CONFIG } from '../config/api.config';
@@ -13,22 +13,14 @@ export class CartStore {
   );
   readonly cartItems = this.items.asReadonly();
 
-  constructor(private readonly api: ApiService) {
-    effect(() => {
-      try {
-        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(this.items()));
-      } catch {
-        // silently fail
-      }
-    });
-  }
+  constructor(private readonly api: ApiService) {}
 
   addToCart(request: AddToCartRequest): void {
     this.api.post<AddToCartResponse, AddToCartRequest>(
       API_CONFIG.endpoints.cart,
       request,
     ).subscribe({
-      next: (response) => {
+      next: () => {
         this.items.update((current) => {
           const existing = current.find(
             (item) =>
@@ -36,26 +28,35 @@ export class CartStore {
               item.colorCode === request.colorCode &&
               item.storageCode === request.storageCode,
           );
-          if (existing) {
-            return current.map((item) =>
-              item === existing
-                ? { ...item, quantity: item.quantity + 1 }
-                : item,
-            );
-          }
-          return [
-            ...current,
-            {
-              productId: request.productId,
-              colorCode: request.colorCode,
-              storageCode: request.storageCode,
-              quantity: 1,
-            },
-          ];
+          const updated = existing
+            ? current.map((item) =>
+                item === existing
+                  ? { ...item, quantity: item.quantity + 1 }
+                  : item,
+              )
+            : [
+                ...current,
+                {
+                  productId: request.productId,
+                  colorCode: request.colorCode,
+                  storageCode: request.storageCode,
+                  quantity: 1,
+                },
+              ];
+          this.persist(updated);
+          return updated;
         });
       },
       error: (err) => console.error('Failed to add item to cart:', err),
     });
+  }
+
+  private persist(items: CartItem[]): void {
+    try {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+    } catch {
+      // silently fail
+    }
   }
 
   private loadCart(): CartItem[] {

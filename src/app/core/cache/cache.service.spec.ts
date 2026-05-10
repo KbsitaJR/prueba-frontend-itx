@@ -1,12 +1,16 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CacheService } from './cache.service';
 
 describe('CacheService', () => {
   let service: CacheService;
+  let storage: Record<string, string> = {};
 
   beforeEach(() => {
+    storage = {};
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation((key: string) => storage[key] ?? null);
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation((key: string, value: string) => { storage[key] = value; });
+    vi.spyOn(Storage.prototype, 'removeItem').mockImplementation((key: string) => { delete storage[key]; });
     service = new CacheService();
-    localStorage.clear();
   });
 
   it('should store and retrieve data', () => {
@@ -38,5 +42,12 @@ describe('CacheService', () => {
     service.clear();
     expect(service.get('key1')).toBeNull();
     expect(service.get('key2')).toBeNull();
+  });
+
+  it('should not throw when localStorage is full', () => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('QuotaExceededError');
+    });
+    expect(() => service.set('key', 'value', 3600000)).not.toThrow();
   });
 });
