@@ -4,6 +4,7 @@ import { CurrencyPipe, Location } from '@angular/common';
 import { Product, StorageOption, ColorOption } from '../../models/product.model';
 import { ProductService } from '../../core/api/product.service';
 import { CartStore } from '../../store/cart.store';
+import { ToastStore } from '../../shared/components/toast/toast.store';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
 import { LoadingState } from '../../shared/types/api.types';
 
@@ -116,9 +117,23 @@ import { LoadingState } from '../../shared/types/api.types';
 
                 <button
                   (click)="addToCart()"
-                  class="w-full rounded-xl bg-gray-900 px-6 py-3 text-sm font-medium text-white transition-all hover:bg-gray-800 active:scale-[0.98]"
+                  [disabled]="addingToCart()"
+                  class="w-full rounded-xl px-6 py-3 text-sm font-medium text-white transition-all active:scale-[0.98]"
+                  [class]="addingToCart()
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-gray-900 hover:bg-gray-800'"
                 >
-                  Add to Cart
+                  @if (addingToCart()) {
+                    <span class="flex items-center justify-center gap-2">
+                      <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      Adding...
+                    </span>
+                  } @else {
+                    Add to Cart
+                  }
                 </button>
               </div>
 
@@ -187,9 +202,11 @@ export default class ProductDetailComponent implements OnInit {
   private readonly location = inject(Location);
   private readonly productService = inject(ProductService);
   private readonly cartStore = inject(CartStore);
+  private readonly toast = inject(ToastStore);
 
   protected readonly loadingState = signal<LoadingState>('idle');
   protected readonly productData = signal<Product | null>(null);
+  protected readonly addingToCart = signal(false);
 
   protected readonly selectedStorage = signal<StorageOption | null>(null);
   protected readonly selectedColor = signal<ColorOption | null>(null);
@@ -248,10 +265,23 @@ export default class ProductDetailComponent implements OnInit {
     const color = this.selectedColor();
     if (!product || !storage || !color) return;
 
+    this.addingToCart.set(true);
     this.cartStore.addToCart({
       productId: product.id,
       colorCode: color.code,
       storageCode: storage.code,
+    }).subscribe({
+      next: () => {
+        this.addingToCart.set(false);
+        this.toast.show(
+          `${product.brand} ${product.model} (${storage.name}, ${color.name}) added to cart`,
+          'success',
+        );
+      },
+      error: () => {
+        this.addingToCart.set(false);
+        this.toast.show('Failed to add item to cart. Please try again.', 'error');
+      },
     });
   }
 

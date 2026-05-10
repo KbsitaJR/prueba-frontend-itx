@@ -1,4 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
+import { Observable } from 'rxjs';
 import { CartItem, AddToCartRequest, AddToCartResponse } from '../models/product.model';
 import { ApiService } from '../core/api/api.service';
 import { API_CONFIG } from '../config/api.config';
@@ -15,40 +16,59 @@ export class CartStore {
 
   constructor(private readonly api: ApiService) {}
 
-  addToCart(request: AddToCartRequest): void {
-    this.api.post<AddToCartResponse, AddToCartRequest>(
-      API_CONFIG.endpoints.cart,
-      request,
-    ).subscribe({
-      next: () => {
-        this.items.update((current) => {
-          const existing = current.find(
-            (item) =>
-              item.productId === request.productId &&
-              item.colorCode === request.colorCode &&
-              item.storageCode === request.storageCode,
-          );
-          const updated = existing
-            ? current.map((item) =>
-                item === existing
-                  ? { ...item, quantity: item.quantity + 1 }
-                  : item,
-              )
-            : [
-                ...current,
-                {
-                  productId: request.productId,
-                  colorCode: request.colorCode,
-                  storageCode: request.storageCode,
-                  quantity: 1,
-                },
-              ];
-          this.persist(updated);
-          return updated;
-        });
-      },
-      error: (err) => console.error('Failed to add item to cart:', err),
+  addToCart(request: AddToCartRequest): Observable<AddToCartResponse> {
+    const optimistic = this.applyOptimisticUpdate(request);
+
+    return new Observable<AddToCartResponse>((observer) => {
+      this.api.post<AddToCartResponse, AddToCartRequest>(
+        API_CONFIG.endpoints.cart,
+        request,
+      ).subscribe({
+        next: (response) => {
+          observer.next(response);
+          observer.complete();
+        },
+        error: (err) => {
+          this.rollback(optimistic);
+          observer.error(err);
+        },
+      });
     });
+  }
+
+  private applyOptimisticUpdate(request: AddToCartRequest): CartItem[] {
+    const previous = [...this.items()];
+    this.items.update((current) => {
+      const existing = current.find(
+        (item) =>
+          item.productId === request.productId &&
+          item.colorCode === request.colorCode &&
+          item.storageCode === request.storageCode,
+      );
+      const updated = existing
+        ? current.map((item) =>
+            item === existing
+              ? { ...item, quantity: item.quantity + 1 }
+              : item,
+          )
+        : [
+            ...current,
+            {
+              productId: request.productId,
+              colorCode: request.colorCode,
+              storageCode: request.storageCode,
+              quantity: 1,
+            },
+          ];
+      this.persist(updated);
+      return updated;
+    });
+    return previous;
+  }
+
+  private rollback(previous: CartItem[]): void {
+    this.items.set(previous);
+    this.persist(previous);
   }
 
   private persist(items: CartItem[]): void {
