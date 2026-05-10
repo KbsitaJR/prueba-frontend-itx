@@ -1,1 +1,9 @@
-@use "tailwindcss";
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue',
+    'Segoe UI', Roboto, sans-serif;
+}
