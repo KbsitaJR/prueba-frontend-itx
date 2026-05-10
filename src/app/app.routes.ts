@@ -14,6 +14,12 @@ export const routes: Routes = [
     title: 'Product Details - MobileStore',
   },
   {
+    path: 'cart',
+    loadComponent: () =>
+      import('./features/cart/cart.component'),
+    title: 'Cart - MobileStore',
+  },
+  {
     path: '**',
     redirectTo: '',
   },

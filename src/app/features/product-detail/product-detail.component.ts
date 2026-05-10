@@ -266,11 +266,21 @@ export default class ProductDetailComponent implements OnInit {
     if (!product || !storage || !color) return;
 
     this.addingToCart.set(true);
-    this.cartStore.addToCart({
-      productId: product.id,
-      colorCode: color.code,
-      storageCode: storage.code,
-    }).subscribe({
+    this.cartStore.addToCart(
+      {
+        productId: product.id,
+        colorCode: color.code,
+        storageCode: storage.code,
+      },
+      {
+        productName: product.model,
+        brand: product.brand,
+        price: product.price,
+        imageUrl: product.imageUrl,
+        colorName: color.name,
+        storageName: storage.name,
+      },
+    ).subscribe({
       next: () => {
         this.addingToCart.set(false);
         this.toast.show(

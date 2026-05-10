@@ -13,11 +13,14 @@ export class CartStore {
     this.items().reduce((sum, item) => sum + item.quantity, 0),
   );
   readonly cartItems = this.items.asReadonly();
+  readonly cartTotal = computed(() =>
+    this.items().reduce((sum, item) => sum + item.price * item.quantity, 0),
+  );
 
   constructor(private readonly api: ApiService) {}
 
-  addToCart(request: AddToCartRequest): Observable<AddToCartResponse> {
-    const optimistic = this.applyOptimisticUpdate(request);
+  addToCart(request: AddToCartRequest, display: Omit<CartItem, keyof AddToCartRequest | 'quantity'>): Observable<AddToCartResponse> {
+    const optimistic = this.applyOptimisticUpdate(request, display);
 
     return new Observable<AddToCartResponse>((observer) => {
       this.api.post<AddToCartResponse, AddToCartRequest>(
@@ -36,7 +39,40 @@ export class CartStore {
     });
   }
 
-  private applyOptimisticUpdate(request: AddToCartRequest): CartItem[] {
+  removeItem(productId: string, colorCode: string, storageCode: string): void {
+    this.items.update((current) =>
+      current.filter(
+        (item) =>
+          !(item.productId === productId &&
+            item.colorCode === colorCode &&
+            item.storageCode === storageCode),
+      ),
+    );
+    this.persist(this.items());
+  }
+
+  updateQuantity(productId: string, colorCode: string, storageCode: string, delta: number): void {
+    this.items.update((current) => {
+      const updated = current
+        .map((item) => {
+          if (item.productId === productId && item.colorCode === colorCode && item.storageCode === storageCode) {
+            const newQty = item.quantity + delta;
+            return newQty <= 0 ? null : { ...item, quantity: newQty };
+          }
+          return item;
+        })
+        .filter((item): item is CartItem => item !== null);
+      this.persist(updated);
+      return updated;
+    });
+  }
+
+  clearCart(): void {
+    this.items.set([]);
+    this.persist([]);
+  }
+
+  private applyOptimisticUpdate(request: AddToCartRequest, display: Omit<CartItem, keyof AddToCartRequest | 'quantity'>): CartItem[] {
     const previous = [...this.items()];
     this.items.update((current) => {
       const existing = current.find(
@@ -54,9 +90,8 @@ export class CartStore {
         : [
             ...current,
             {
-              productId: request.productId,
-              colorCode: request.colorCode,
-              storageCode: request.storageCode,
+              ...request,
+              ...display,
               quantity: 1,
             },
           ];

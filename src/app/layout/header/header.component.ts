@@ -27,7 +27,8 @@ import { CartStore } from '../../store/cart.store';
             Products
           </a>
 
-          <button
+          <a
+            routerLink="/cart"
             class="relative flex items-center gap-2 rounded-full border border-gray-200 px-4 py-1.5 text-sm font-medium text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50"
             aria-label="Shopping cart"
           >
@@ -52,7 +53,7 @@ import { CartStore } from '../../store/cart.store';
                 {{ cartCount() }}
               </span>
             }
-          </button>
+          </a>
         </nav>
       </div>
     </header>

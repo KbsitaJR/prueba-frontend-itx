@@ -34,6 +34,12 @@ export interface CartItem {
   colorCode: string;
   storageCode: string;
   quantity: number;
+  productName: string;
+  brand: string;
+  price: number;
+  imageUrl: string;
+  colorName: string;
+  storageName: string;
 }
 
 export interface AddToCartRequest {
