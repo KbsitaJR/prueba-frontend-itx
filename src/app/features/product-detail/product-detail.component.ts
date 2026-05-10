@@ -5,23 +5,24 @@ import { Product, StorageOption, ColorOption } from '../../models/product.model'
 import { ProductService } from '../../core/api/product.service';
 import { CartStore } from '../../store/cart.store';
 import { ToastStore } from '../../shared/components/toast/toast.store';
-import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
 import { LoadingState } from '../../shared/types/api.types';
 
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [CurrencyPipe, BreadcrumbComponent],
+  imports: [CurrencyPipe],
   template: `
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <app-breadcrumb [breadcrumbs]="breadcrumbs()" />
-
       <button
         (click)="goBack()"
         class="mb-6 flex items-center gap-1.5 text-sm text-gray-500 transition-colors hover:text-gray-900"
       >
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+          />
         </svg>
         Back
       </button>
@@ -65,9 +66,15 @@ import { LoadingState } from '../../shared/types/api.types';
             </div>
 
             <div>
-              <p class="text-xs font-medium uppercase tracking-widest text-gray-400">{{ product.brand }}</p>
-              <h1 class="mt-2 text-3xl font-bold tracking-tight text-gray-900">{{ product.model }}</h1>
-              <p class="mt-3 text-2xl font-semibold text-gray-900">{{ product.price | currency }}</p>
+              <p class="text-xs font-medium uppercase tracking-widest text-gray-400">
+                {{ product.brand }}
+              </p>
+              <h1 class="mt-2 text-3xl font-bold tracking-tight text-gray-900">
+                {{ product.model }}
+              </h1>
+              <p class="mt-3 text-2xl font-semibold text-gray-900">
+                {{ product.price | currency }}
+              </p>
 
               <div class="mt-8 space-y-6">
                 <div>
@@ -78,9 +85,11 @@ import { LoadingState } from '../../shared/types/api.types';
                         (click)="selectStorage(option)"
                         [attr.aria-pressed]="selectedStorage()?.code === option.code"
                         class="rounded-lg border px-4 py-2 text-sm font-medium transition-all"
-                        [class]="selectedStorage()?.code === option.code
-                          ? 'border-gray-900 bg-gray-900 text-white'
-                          : 'border-gray-200 text-gray-700 hover:border-gray-300'"
+                        [class]="
+                          selectedStorage()?.code === option.code
+                            ? 'border-gray-900 bg-gray-900 text-white'
+                            : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                        "
                       >
                         {{ option.name }}
                       </button>
@@ -98,13 +107,25 @@ import { LoadingState } from '../../shared/types/api.types';
                         [attr.aria-pressed]="selectedColor()?.code === option.code"
                         class="relative flex h-10 w-10 items-center justify-center rounded-full transition-all"
                         [style.background-color]="option.hex"
-                        [class]="selectedColor()?.code === option.code
-                          ? 'ring-2 ring-gray-900 ring-offset-2'
-                          : 'ring-1 ring-gray-200 hover:ring-gray-300'"
+                        [class]="
+                          selectedColor()?.code === option.code
+                            ? 'ring-2 ring-gray-900 ring-offset-2'
+                            : 'ring-1 ring-gray-200 hover:ring-gray-300'
+                        "
                       >
                         @if (selectedColor()?.code === option.code) {
-                          <svg class="h-4 w-4 text-white mix-blend-difference" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                          <svg
+                            class="h-4 w-4 text-white mix-blend-difference"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            stroke-width="2.5"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M4.5 12.75l6 6 9-13.5"
+                            />
                           </svg>
                         }
                       </button>
@@ -119,15 +140,28 @@ import { LoadingState } from '../../shared/types/api.types';
                   (click)="addToCart()"
                   [disabled]="addingToCart()"
                   class="w-full rounded-xl px-6 py-3 text-sm font-medium text-white transition-all active:scale-[0.98]"
-                  [class]="addingToCart()
-                    ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-gray-900 hover:bg-gray-800'"
+                  [class]="
+                    addingToCart()
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-gray-900 hover:bg-gray-800'
+                  "
                 >
                   @if (addingToCart()) {
                     <span class="flex items-center justify-center gap-2">
                       <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        <circle
+                          class="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          stroke-width="4"
+                        />
+                        <path
+                          class="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                        />
                       </svg>
                       Adding...
                     </span>
@@ -138,7 +172,9 @@ import { LoadingState } from '../../shared/types/api.types';
               </div>
 
               <div class="mt-10 border-t border-gray-100 pt-8">
-                <h2 class="text-sm font-medium uppercase tracking-widest text-gray-400">Specifications</h2>
+                <h2 class="text-sm font-medium uppercase tracking-widest text-gray-400">
+                  Specifications
+                </h2>
                 <dl class="mt-4 space-y-3">
                   @if (product.cpu) {
                     <div class="flex justify-between">
@@ -161,7 +197,9 @@ import { LoadingState } from '../../shared/types/api.types';
                   @if (product.screenResolution) {
                     <div class="flex justify-between">
                       <dt class="text-sm text-gray-500">Screen</dt>
-                      <dd class="text-sm font-medium text-gray-900">{{ product.screenResolution }}</dd>
+                      <dd class="text-sm font-medium text-gray-900">
+                        {{ product.screenResolution }}
+                      </dd>
                     </div>
                   }
                   @if (product.battery) {
@@ -173,7 +211,9 @@ import { LoadingState } from '../../shared/types/api.types';
                   @if (product.cameras && product.cameras.length > 0) {
                     <div class="flex justify-between">
                       <dt class="text-sm text-gray-500">Camera</dt>
-                      <dd class="text-sm font-medium text-gray-900">{{ product.cameras.join(', ') }}</dd>
+                      <dd class="text-sm font-medium text-gray-900">
+                        {{ product.cameras.join(', ') }}
+                      </dd>
                     </div>
                   }
                   @if (product.dimensions) {
@@ -219,14 +259,6 @@ export default class ProductDetailComponent implements OnInit {
     return this.productData()?.imageUrl ?? '';
   });
 
-  protected readonly breadcrumbs = computed(() => {
-    const product = this.productData();
-    return [
-      { label: 'Products', path: '/' },
-      { label: product?.model ?? 'Loading...', path: '' },
-    ];
-  });
-
   ngOnInit(): void {
     this.loadProduct();
   }
@@ -266,33 +298,35 @@ export default class ProductDetailComponent implements OnInit {
     if (!product || !storage || !color) return;
 
     this.addingToCart.set(true);
-    this.cartStore.addToCart(
-      {
-        productId: product.id,
-        colorCode: color.code,
-        storageCode: storage.code,
-      },
-      {
-        productName: product.model,
-        brand: product.brand,
-        price: product.price,
-        imageUrl: product.imageUrl,
-        colorName: color.name,
-        storageName: storage.name,
-      },
-    ).subscribe({
-      next: () => {
-        this.addingToCart.set(false);
-        this.toast.show(
-          `${product.brand} ${product.model} (${storage.name}, ${color.name}) added to cart`,
-          'success',
-        );
-      },
-      error: () => {
-        this.addingToCart.set(false);
-        this.toast.show('Failed to add item to cart. Please try again.', 'error');
-      },
-    });
+    this.cartStore
+      .addToCart(
+        {
+          productId: product.id,
+          colorCode: color.code,
+          storageCode: storage.code,
+        },
+        {
+          productName: product.model,
+          brand: product.brand,
+          price: product.price,
+          imageUrl: product.imageUrl,
+          colorName: color.name,
+          storageName: storage.name,
+        },
+      )
+      .subscribe({
+        next: () => {
+          this.addingToCart.set(false);
+          this.toast.show(
+            `${product.brand} ${product.model} (${storage.name}, ${color.name}) added to cart`,
+            'success',
+          );
+        },
+        error: () => {
+          this.addingToCart.set(false);
+          this.toast.show('Failed to add item to cart. Please try again.', 'error');
+        },
+      });
   }
 
   protected goBack(): void {

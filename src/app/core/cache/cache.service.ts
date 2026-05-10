@@ -2,7 +2,10 @@ import { Injectable } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class CacheService {
-  private readonly memoryCache = new Map<string, { data: unknown; timestamp: number; ttl: number }>();
+  private readonly memoryCache = new Map<
+    string,
+    { data: unknown; timestamp: number; ttl: number }
+  >();
 
   get<T>(key: string): T | null {
     const entry = this.memoryCache.get(key);
@@ -27,7 +30,11 @@ export class CacheService {
 
   invalidate(key: string): void {
     this.memoryCache.delete(key);
-    localStorage.removeItem(key);
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      // silently fail
+    }
   }
 
   clear(): void {

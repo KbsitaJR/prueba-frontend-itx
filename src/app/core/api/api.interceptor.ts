@@ -1,6 +1,5 @@
 import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpEvent } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { API_CONFIG } from '../../config/api.config';
 
 export const apiInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
