@@ -1,6 +1,6 @@
 # MobileStore
 
-Premium e-commerce SPA for mobile devices built with Angular 21, Signals, Standalone Components, and TailwindCSS v4.
+Premium e-commerce SPA for mobile devices built with Angular 21, Signals, Standalone Components, and TailwindCSS v3.
 
 ## Tech Stack
 
@@ -10,7 +10,7 @@ Premium e-commerce SPA for mobile devices built with Angular 21, Signals, Standa
 | TypeScript 5.9 | Language (strict mode) |
 | Angular Signals | State management |
 | RxJS 7 | Reactive programming |
-| TailwindCSS v4 | Styling |
+| TailwindCSS v3 | Styling |
 | Vitest | Unit/Integration tests |
 | ESLint + Prettier | Code quality |
 | Husky + lint-staged | Git hooks |
@@ -44,12 +44,13 @@ src/
 │   │   ├── api/         # ApiService, interceptors, mock data
 │   │   └── cache/       # Client cache with 1h expiration
 │   ├── features/
-│   │   ├── product-list/ # PLP - Product List Page (lazy)
-│   │   └── product-detail/ # PDP - Product Details Page (lazy)
+│   │   ├── product-list/   # PLP - Product List Page (lazy)
+│   │   ├── product-detail/ # PDP - Product Details Page (lazy)
+│   │   └── cart/           # Cart page (lazy)
 │   ├── layout/          # App shell (header, footer)
 │   ├── models/          # Domain models and DTOs
 │   ├── shared/
-│   │   ├── components/  # ProductCard, Skeleton, Breadcrumb
+│   │   ├── components/  # Toast, Skeleton
 │   │   ├── types/       # Shared type utilities
 │   │   └── utils/       # Debounce utility
 │   └── store/           # Cart store (Signals + localStorage)
